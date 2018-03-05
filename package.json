@@ -1,0 +1,19 @@
+{
+  "name": "shavenprimates",
+  "version": "1.0.0",
+  "description": "Website for the band Shaven Primates",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marksyzm/shavenprimates.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/marksyzm/shavenprimates/issues"
+  },
+  "homepage": "https://github.com/marksyzm/shavenprimates#readme"
+}
