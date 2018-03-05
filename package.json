@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/marksyzm/shavenprimates/issues"
   },
-  "homepage": "https://github.com/marksyzm/shavenprimates#readme"
+  "homepage": "https://github.com/marksyzm/shavenprimates#readme",
+  "devDependencies": {
+    "node-sass": "^4.7.2",
+    "webpack": "^4.1.0"
+  }
 }
