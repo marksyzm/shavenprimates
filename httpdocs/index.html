@@ -15,12 +15,23 @@
             font-style: normal;
         }
 
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+
         body {
             background: #151515;
             color: white;
             font-family: 'Khmer Sangam MN', Arial, sans-serif;
             margin: 0;
-            padding-bottom: 4vw;
+        }
+
+        .scroll {
+            width: 100%;
+            height: 100%;
+            overflow: scroll;
+            -webkit-overflow-scrolling: touch;
         }
         h1, h2, .intro p {
             text-indent: 3.2vw;
@@ -99,8 +110,6 @@
             height: 100vh;
             background: white none fixed center center no-repeat;
             background-size: contain;
-            background-attachment: local;
-            background-attachment: fixed;
         }
         .band .white.josh {
             background-image: url(img/josh.jpg);
@@ -120,63 +129,65 @@
     </style>
 </head>
 <body>
-    <article class="intro">
-        <h1>Shaven Primates</h1>
-        <div class="white"><img src="img/sp-logo.jpg" alt="Shaving Primate"></div>
-        <p>Scroll...</p>
-    </article>
-    <section class="band">
-        <h1>The Band</h1>
-        <article>
-            <section>
+    <div class="scroll">
+        <article class="intro">
+            <h1>Shaven Primates</h1>
+            <div class="white"><img src="img/sp-logo.jpg" alt="Shaving Primate"></div>
+            <p>Scroll...</p>
+        </article>
+        <section class="band">
+            <h1>The Band</h1>
+            <article>
                 <div class="white josh"></div>
-                <h2>Josh</h2>
-                <p>Josh is a talented multiinstrumentalist who has fifteen years playing experience and a BA Honours degree in Popular Music. He is a classically trained pianist, synthesiser player in a local Progressive Rock band, acoustic songwriter, specialising in fingerpicking and the more modern styles shown by artists such as Jon Gomm, and singer in a local covers group.</p>
-                <p>He has gigged extensively across the Midlands and Oxford, and has been teaching privately for four years, across all ages and experience levels.</p>
-            </section>
-        </article>
-        <article>
-            <section>
+                <section>
+                    <h2>Josh</h2>
+                    <p>Josh is a talented multiinstrumentalist who has fifteen years playing experience and a BA Honours degree in Popular Music. He is a classically trained pianist, synthesiser player in a local Progressive Rock band, acoustic songwriter, specialising in fingerpicking and the more modern styles shown by artists such as Jon Gomm, and singer in a local covers group.</p>
+                    <p>He has gigged extensively across the Midlands and Oxford, and has been teaching privately for four years, across all ages and experience levels.</p>
+                </section>
+            </article>
+            <article>
                 <div class="white chris"></div>
-                <h2>Chris</h2>
-                <p>Chris grew up amongst the booming skate scene on the rough streets of Newcastle during the early nineties, to a sound track of hip hop, grunge and the smiths. He spent his youth playing music, street skating, thai boxing and competing in the pole vault. More recently has made a home for himself in South London with his beautiful partner from NYC. Aside from a love of music he has a passion for martial arts and when not building robots or playing bass he can be found competing in kick boxing or studying fight videos.</p>
-                <p>He started his musical career at a young age playing piano, later moving to tenor sax in school jazz bands, and then as a frustrated drummer found electronic music and eventually picked up the finest of all instruments, the electric bass. He has been a member of electronic music collectives and several heavy rock bands. Chris's influences vary from experimental electronica, jazz and techno to stoner rock, post-punk and drum & bass. </p>
-            </section>
-        </article>
-        <article>
-            <section>
-                <div class="white jarod"></div>
-                <h2>Jarod</h2>
-                <p>Jarod started playing music as a teenager and hasn't stopped. He started out with trumpet and ended up with a guitar and a mic as the lead singer for "Hendry House Blues Band". As the years went by he realized the music scene in his small town of rural Georgia was in desperate need of percussionists and started to play drums.</p>
-                <p>As a drummer Jarod has toured most of the East Coast and the Mid West of the United States, working in various genres from country western to reggae and even some hard rock/new metal. After “hopping the pond” he found the Primates and has been working diligently writing and recording the upcoming album.</p>
-                <p>He holds a Masters Degree from the School of Hard Knocks which he attended while working for a charity to feed starving musicians.</p>
-            </section>
-        </article>
-        <article>
-            <section>
+                <section>
+                    <h2>Chris</h2>
+                    <p>Chris grew up amongst the booming skate scene on the rough streets of Newcastle during the early nineties, to a sound track of hip hop, grunge and the smiths. He spent his youth playing music, street skating, thai boxing and competing in the pole vault. More recently has made a home for himself in South London with his beautiful partner from NYC. Aside from a love of music he has a passion for martial arts and when not building robots or playing bass he can be found competing in kick boxing or studying fight videos.</p>
+                    <p>He started his musical career at a young age playing piano, later moving to tenor sax in school jazz bands, and then as a frustrated drummer found electronic music and eventually picked up the finest of all instruments, the electric bass. He has been a member of electronic music collectives and several heavy rock bands. Chris's influences vary from experimental electronica, jazz and techno to stoner rock, post-punk and drum & bass. </p>
+                </section>
+            </article>
+            <article>
+                <section>
+                    <div class="white jarod"></div>
+                    <h2>Jarod</h2>
+                    <p>Jarod started playing music as a teenager and hasn't stopped. He started out with trumpet and ended up with a guitar and a mic as the lead singer for "Hendry House Blues Band". As the years went by he realized the music scene in his small town of rural Georgia was in desperate need of percussionists and started to play drums.</p>
+                    <p>As a drummer Jarod has toured most of the East Coast and the Mid West of the United States, working in various genres from country western to reggae and even some hard rock/new metal. After “hopping the pond” he found the Primates and has been working diligently writing and recording the upcoming album.</p>
+                    <p>He holds a Masters Degree from the School of Hard Knocks which he attended while working for a charity to feed starving musicians.</p>
+                </section>
+            </article>
+            <article>
                 <div class="white tom"></div>
-                <h2>Tom</h2>
-                <p>Tom has over ten years playing and gigging experience at both a local and national level playing Electric Guitar and Bass. He has been teaching privately for four years at all age and experience levels, and also teaches at the local Oxford Rockschool for children aged between ten and fifteen. </p>
-                <p>He holds a BA Honours degree in Popular Music with a first in performance and songwriting. Tom has played everywhere from the O2 Academy in Oxford to King Tuts in Glasgow, with bands covering styles from Progressive Rock to Funk, Blues, Classic Rock covers and more.</p>
-            </section>
-        </article>
-        <article>
-            <section>
+                <section>
+                    <h2>Tom</h2>
+                    <p>Tom has over ten years playing and gigging experience at both a local and national level playing Electric Guitar and Bass. He has been teaching privately for four years at all age and experience levels, and also teaches at the local Oxford Rockschool for children aged between ten and fifteen. </p>
+                    <p>He holds a BA Honours degree in Popular Music with a first in performance and songwriting. Tom has played everywhere from the O2 Academy in Oxford to King Tuts in Glasgow, with bands covering styles from Progressive Rock to Funk, Blues, Classic Rock covers and more.</p>
+                </section>
+            </article>
+            <article>
                 <div class="white mark"></div>
-                <h2>Mark</h2>
-                <p>Mark's got a story he thinks you all would like to hear.</p>
-                <p>It's been 36 years in the making.</p>
-            </section>
-        </article>
-        <!--<article>
-            <div class="white"><img src="img/neil.jpg" alt="Neil"></div>
-            <section>
-                <h2>Neil</h2>
-                <p>Neil's love of electronic music was first awoken in the 80s by the video game soundtracks of composers such as Rob Hubbard. A hearty diet of Tangerine Dream, JM Jarre and Mike Oldfield paved the way for a short-lived career in 90s EDM; signing to A&M records.</p>
-                <p>Unimpressed with the business end of the music world Neil set off to have some sonic fun for the next decade. He finally tired of four on the floor and focused on classical piano for several years.</p>
-                <p>The demands of fatherhood put music on the back burner for a while only to resurface exploring prog rock keys and ambient strangeness.</p>
-            </section>
-        </article>-->
-    </section>
+                <section>
+                    <h2>Mark</h2>
+                    <p>Mark's got a story he thinks you all would like to hear.</p>
+                    <p>It's been 36 years in the making.</p>
+                </section>
+            </article>
+            <!--<article>
+                <div class="white"><img src="img/neil.jpg" alt="Neil"></div>
+                <section>
+                    <h2>Neil</h2>
+                    <p>Neil's love of electronic music was first awoken in the 80s by the video game soundtracks of composers such as Rob Hubbard. A hearty diet of Tangerine Dream, JM Jarre and Mike Oldfield paved the way for a short-lived career in 90s EDM; signing to A&M records.</p>
+                    <p>Unimpressed with the business end of the music world Neil set off to have some sonic fun for the next decade. He finally tired of four on the floor and focused on classical piano for several years.</p>
+                    <p>The demands of fatherhood put music on the back burner for a while only to resurface exploring prog rock keys and ambient strangeness.</p>
+                </section>
+            </article>-->
+        </section>
+    </div>
 </body>
 </html>
