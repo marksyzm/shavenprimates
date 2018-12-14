@@ -1,0 +1,21 @@
+{
+  "name": "simblee",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "karma start",
+    "start": "node index.js"
+  },
+  "author": "Mark Elphinstone",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^2.6.1",
+    "noble": "^1.9.1",
+    "noble-mac": "git://github.com/Timeular/noble-mac.git",
+    "xpc-connection": "sandeepmistry/node-xpc-connection#pull/26/head"
+  },
+  "resolutions": {
+    "xpc-connection": "sandeepmistry/node-xpc-connection#pull/26/head"
+  }
+}
