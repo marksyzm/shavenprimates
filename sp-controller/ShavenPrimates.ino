@@ -45,20 +45,20 @@ void loop() {
   if (!flag) return;
   
   int newPot1Val = analogRead(pot1);
-  if (newPot1Val != pot1Val) {
+  if (newPot1Val > 10 && newPot1Val != pot1Val) {
     Serial.println("pot1");
     Serial.println(newPot1Val);
     SimbleeBLE.sendInt(newPot1Val);
     pot1Val = newPot1Val;
   }
-//  int newPot2Val = analogRead(pot2);
-//  if (newPot2Val != pot2Val) {
-//    Serial.println("pot2");
-//    Serial.println(newPot2Val);
-//    SimbleeBLE.sendInt(newPot2Val);
-//    pot2Val = newPot2Val;
-//  }
-//  delay(10);
+  int newPot2Val = analogRead(pot2);
+  if (newPot2Val > 10 && newPot2Val != pot2Val) {
+    Serial.println("pot2");
+    Serial.println(newPot2Val);
+    SimbleeBLE.sendInt(1024 + newPot2Val); // if > 1024 then it's the right hand side controller
+    pot2Val = newPot2Val;
+  }
+  delay(40);
 }
 
 void SimbleeBLE_onAdvertisement(bool start) {
