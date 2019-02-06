@@ -1,0 +1,216 @@
+import { Component, Event, EventEmitter, State, Prop } from '@stencil/core';
+import 'socket.io-client';
+
+interface Characteristic {
+  item: any;
+  isConnecting?: boolean;
+  isNotifying?: boolean;
+}
+
+@Component({
+  tag: 'sp-ble-peripheral',
+  shadow: false
+})
+export class SpBle {
+  @Event() blePeripheralSelected: EventEmitter;
+  @Prop() socket: SocketIOClient.Socket;
+  @State() server: any;
+  @State() optionalServices = [];
+  @State() characteristics = [] as Characteristic[];
+  @State() services = [];
+  @State() showPeripherals = false;
+
+  constructor() {
+    this.onClickAddPeripheral = this.onClickAddPeripheral.bind(this);
+    this.onSubmitGetCharacteristics = this.onSubmitGetCharacteristics.bind(this);
+    this.onClickSelectCharacteristic = this.onClickSelectCharacteristic.bind(this);
+    this.handleCharacteristicValueChanges = this.handleCharacteristicValueChanges.bind(this);
+    this.onInputSetService = this.onInputSetService.bind(this);
+  }
+
+  static getSupportedProperties(characteristic) {
+    let supportedProperties = [];
+    for (const p in characteristic.properties) {
+      if (characteristic.properties[p] === true) {
+        supportedProperties.push(p.toUpperCase());
+      }
+    }
+    return supportedProperties;
+  }
+
+  componentDidLoad() {
+    this.socket.on('peripherals', peripherals => {
+      console.log('peripherals', peripherals);
+    });
+  }
+
+  scan() {
+    fetch('http://localhost:3000/peripherals', { method: 'POST' });
+  }
+
+  componentDidUnload() {
+    this.socket.on('connect', function () {
+
+    });
+  }
+
+  onInputSetService(ev) {
+    this.optionalServices = ev.target.value
+      .split(/, ?/).map(s => s.startsWith('0x') ? parseInt(s) : s)
+      .filter(s => s && window['BluetoothUUID'].getService);
+
+    console.log(this.optionalServices);
+  }
+
+  async onClickAddPeripheral() {
+    this.showPeripherals = true;
+  }
+
+  async onSubmitGetCharacteristics(ev) {
+    ev.preventDefault();
+    const services = await this.server.getPrimaryServices();
+    this.characteristics = [];
+    let queue = Promise.resolve();
+    this.services = services;
+    services.forEach(service => {
+      queue = queue.then(_ => service.getCharacteristics().then(characteristics => {
+        console.log(`> Service: ${service.uuid}`);
+        for (const item of characteristics) {
+          const characteristic = { item };
+          this.characteristics = [ ...this.characteristics, characteristic ];
+          console.log(characteristic);
+          console.log(`>> Characteristic: ${characteristic.item.uuid} [${SpBle.getSupportedProperties(item).join(', ')}]`);
+        };
+      }));
+    });
+    console.log(services);
+  }
+
+  getGattServiceList () {
+    if (!this.server) {
+      return;
+    }
+    return (
+      <section>
+        <form onSubmit={this.onSubmitGetCharacteristics}>
+          <p>Now select a service type:</p>
+          <input type="text" list="bleServices" placeholder="Bluetooth Services (e.g. generic_access, 0xFE84 for simblee)" onInput={this.onInputSetService} />
+          <datalist id="bleServices">
+            <option value="alert_notification">alert_notification</option>
+            <option value="automation_io">automation_io</option>
+            <option value="battery_service">battery_service</option>
+            <option value="blood_pressure">blood_pressure</option>
+            <option value="body_composition">body_composition</option>
+            <option value="bond_management">bond_management</option>
+            <option value="continuous_glucose_monitoring">continuous_glucose_monitoring</option>
+            <option value="current_time">current_time</option>
+            <option value="cycling_power">cycling_power</option>
+            <option value="cycling_speed_and_cadence">cycling_speed_and_cadence</option>
+            <option value="device_information">device_information</option>
+            <option value="environmental_sensing">environmental_sensing</option>
+            <option value="generic_access">generic_access</option>
+            <option value="generic_attribute">generic_attribute</option>
+            <option value="glucose">glucose</option>
+            <option value="health_thermometer">health_thermometer</option>
+            <option value="heart_rate">heart_rate</option>
+            <option value="human_interface_device">human_interface_device (blacklisted)</option>
+            <option value="immediate_alert">immediate_alert</option>
+            <option value="indoor_positioning">indoor_positioning</option>
+            <option value="internet_protocol_support">internet_protocol_support</option>
+            <option value="link_loss">link_loss</option>
+            <option value="location_and_navigation">location_and_navigation</option>
+            <option value="next_dst_change">next_dst_change</option>
+            <option value="phone_alert_status">phone_alert_status</option>
+            <option value="pulse_oximeter">pulse_oximeter</option>
+            <option value="reference_time_update">reference_time_update</option>
+            <option value="running_speed_and_cadence">running_speed_and_cadence</option>
+            <option value="scan_parameters">scan_parameters</option>
+            <option value="tx_power">tx_power</option>
+            <option value="user_data">user_data</option>
+            <option value="weight_scale">weight_scale</option>
+          </datalist>
+          <button type="submit" class="btn">Get characteristics</button>
+        </form>
+      </section>
+    );
+  }
+
+  showCharacteristics() {
+    if (!this.characteristics || !this.characteristics.length) {
+      return;
+    }
+    return (
+      <div class="list-group">
+        {this.characteristics.map(characteristic => {
+          let classStr = 'list-group-item d-flex justify-content-between list-group-item-action';
+          if (characteristic.isConnecting) {
+            classStr += ' list-group-item-warning';
+          }
+          if (characteristic.isNotifying) {
+            classStr += ' list-group-item-success';
+          }
+          
+          return (
+            <button
+              onClick={() => this.onClickSelectCharacteristic(characteristic)}
+              class={classStr}
+              disabled={characteristic.isConnecting}>
+              Characteristic: {characteristic.item.uuid}
+              { SpBle.getSupportedProperties(characteristic.item).map((prop) => 
+                <span class="badge badge-pill">{prop}</span>
+              )}
+              {characteristic.isConnecting && <span class="badge badge-warning badge-pill">Preparing...</span>}
+            </button>
+          );
+        })}
+      </div>
+    );
+  }
+
+  async onClickSelectCharacteristic(characteristic: Characteristic) {
+    characteristic.isConnecting = true;
+    try {
+      if (characteristic.isNotifying) {
+        await characteristic.item.stopNotifications();
+        console.log('> Notifications stopped');
+        characteristic.item.removeEventListener('characteristicvaluechanged', this.handleCharacteristicValueChanges);
+        characteristic.isNotifying = false;
+      } else {
+        console.log('> Notifications started');
+        const notifier = await characteristic.item.startNotifications();
+        notifier.addEventListener('characteristicvaluechanged', this.handleCharacteristicValueChanges);
+        characteristic.isNotifying = true;
+      }
+      this.characteristics = this.characteristics.slice();
+    } catch (e) {
+      alert('There was an issue capturing this characteristic! See console.log for details');
+      console.error(e);
+    }
+    characteristic.isConnecting = false;
+  }
+
+  handleCharacteristicValueChanges(ev) {
+    let value = ev.target.value;
+    // let a = [];
+    // Convert raw data bytes to hex values just for the sake of showing something.
+    // In the "real" world, you'd use data.getUint8, data.getUint16 or even
+    // TextDecoder to process raw data bytes.
+    /* for (let i = 0; i < value.byteLength; i++) {
+      a.push('0x' + ('00' + value.getUint8(i).toString(16)).slice(-2));
+    } */
+    // console.log('> ' + a.join(' '));
+    console.log(ev, value.getUint8(0) + (value.getUint8(1) << 8));
+    // console.log(value);
+
+  }
+  
+  render() {
+    return (
+      <article>
+        <button onClick={this.onClickAddPeripheral}>Add Peripheral</button>
+        {this.getGattServiceList()}
+        {this.showCharacteristics()}
+      </article>
+    );
+  }
+}

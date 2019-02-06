@@ -1,5 +1,6 @@
 import { Config } from '@stencil/core';
-import { sass } from '@stencil/sass';
+import builtins from 'rollup-plugin-node-builtins';
+import globals from 'rollup-plugin-node-globals';
 
 export const config: Config = {
   namespace: 'sp-not-midi-ble',
@@ -10,8 +11,13 @@ export const config: Config = {
       type: 'www',
       serviceWorker: null // disable service workers
     }
-  ],
+  ], 
+  nodeResolve: { 
+    browser: true,
+    preferBuiltins: true // Workaround for https://github.com/ionic-team/stencil/issues/1326 
+  },
   plugins: [
-    sass()
+    builtins(),
+    globals()
   ]
 };

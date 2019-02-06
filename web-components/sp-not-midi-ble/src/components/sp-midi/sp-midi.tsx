@@ -3,7 +3,6 @@ import WebMidi from 'webmidi';
 
 @Component({
   tag: 'sp-midi',
-  styleUrl: 'sp-midi.scss',
   shadow: false
 })
 export class SpMidi {

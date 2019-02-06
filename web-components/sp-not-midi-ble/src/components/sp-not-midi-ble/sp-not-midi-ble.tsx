@@ -1,16 +1,27 @@
 import { Component, State } from '@stencil/core';
+import io from 'socket.io-client';
 
 @Component({
   tag: 'sp-not-midi-ble',
-  styleUrl: 'sp-not-midi-ble.scss',
   shadow: false
 })
 export class SpNotMidiBle {
   @State() midiOutput: any;
+  @State() socketConnected = false;
+  @State() socket: SocketIOClient.Socket;
 
   constructor() {
     this.onMidiOutputSelected = this.onMidiOutputSelected.bind(this);
-    
+  }
+
+  componentDidLoad() {
+    this.socket = io('http://localhost:3000');
+    this.socket.on('connect', () => {
+      this.socketConnected = true;
+    });
+    this.socket.on('disconnect', () => {
+      this.socketConnected = false;
+    });
   }
 
   onMidiOutputSelected({ detail: midiOutput }) {
@@ -22,15 +33,17 @@ export class SpNotMidiBle {
   }
 
   render() {
-    return <div>
-      <sp-midi onMidiOutputSelected={this.onMidiOutputSelected}></sp-midi>
-      {
-        this.midiOutput && 
-        <div>
-          <p>{this.midiOutput.name} selected</p>
-          <sp-ble-peripheral onBlePeripheralSelected={this.onBlePeripheralSelected}></sp-ble-peripheral>
-        </div>
-      }
-    </div>;
+    return (
+      <div>
+        {
+          this.socket && this.socketConnected ?
+            <sp-ble-peripheral
+              onBlePeripheralSelected={this.onBlePeripheralSelected}
+              socket={this.socket}
+              ></sp-ble-peripheral> : 
+            <h1>Socket not connected...</h1>
+        }
+      </div>
+    );
   }
 }

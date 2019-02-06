@@ -16,17 +16,21 @@
     "test": "stencil test --spec --e2e",
     "test.watch": "stencil test --spec --e2e --watchAll"
   },
-  "dependencies": {
-    "@stencil/sass": "^0.1.1",
-    "webmidi": "^2.3.1"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@stencil/core": "~0.16.2",
     "@types/jest": "23.3.13",
     "@types/puppeteer": "1.11.1",
+    "@types/socket.io-client": "^1.4.32",
     "jest": "23.6.0",
     "jest-cli": "23.6.0",
-    "puppeteer": "1.8.0"
+    "puppeteer": "1.8.0",
+    "rollup-plugin-node-builtins": "^2.1.2",
+    "rollup-plugin-node-globals": "^1.4.0",
+    "socket.io-client": "^2.2.0",
+    "webmidi": "^2.3.1",
+    "bufferutil": "^3.0.3",
+    "utf-8-validate": "^4.0.0"
   },
   "license": "MIT"
 }

@@ -12,9 +12,12 @@ import '@stencil/core';
 
 export namespace Components {
 
-  interface SpBlePeripheral {}
+  interface SpBlePeripheral {
+    'socket': SocketIOClient.Socket;
+  }
   interface SpBlePeripheralAttributes extends StencilHTMLAttributes {
     'onBlePeripheralSelected'?: (event: CustomEvent) => void;
+    'socket'?: SocketIOClient.Socket;
   }
 
   interface SpMidi {}
