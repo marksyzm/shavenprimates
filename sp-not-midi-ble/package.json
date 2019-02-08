@@ -12,11 +12,24 @@
   ],
   "scripts": {
     "build": "stencil build --docs",
-    "start": "stencil build --dev --watch --serve",
+    "start": "pm2 start process.json --watch && stencil build --dev --watch --serve",
+    "logs": "pm2 logs",
+    "stop": "pm2 stop notmidible",
     "test": "stencil test --spec --e2e",
     "test.watch": "stencil test --spec --e2e --watchAll"
   },
-  "dependencies": {},
+  "dependencies": {
+    "async": "^2.6.1",
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.5",
+    "easymidi": "^1.0.1",
+    "express": "^4.16.4",
+    "noble": "^1.9.1",
+    "noble-mac": "git://github.com/Timeular/noble-mac.git",
+    "pm2": "^3.2.9",
+    "socket.io": "^2.2.0",
+    "xpc-connection": "sandeepmistry/node-xpc-connection#pull/26/head"
+  },
   "devDependencies": {
     "@stencil/core": "~0.16.2",
     "@types/jest": "23.3.13",

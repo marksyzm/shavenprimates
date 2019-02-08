@@ -12,7 +12,7 @@ app.use(cors());
 
 const POWERED_ON = 'poweredOn';
 const portNumber = process.env.BLE_PORT || 3000;
-const SCAN_TIMEOUT = 30000;
+const SCAN_TIMEOUT = 60000;
 // make multiples of these when you get a chance
 // const midiOuts = [];
 const output = new easymidi.Output(`SP Midi Output`, true);
@@ -25,6 +25,7 @@ let scanning = false;
 const stopBleScanning = () => {
     if (scanning) {
         noble.stopScanning(() => console.log('Stop scanning'));
+        io.emit('scanning', false);
         scanning = false;
     }
 };
@@ -35,6 +36,7 @@ const startBleScanning = () => {
         scanning = true;
         currentPeripherals = [];
         noble.startScanning([], false, () => console.log('Start scanning'));
+        io.emit('scanning', true);
         setTimeout(stopBleScanning, SCAN_TIMEOUT);
     }
 }
@@ -55,15 +57,23 @@ noble.on('discover', function(peripheral) {
 });
 
 const emitPeripherals = function () {
-    const allowed = [ 'id', 'uuid', 'address', 'addressType', 'connectable', 'rssi', 'advertisement' ];
-    io.emit('peripherals', currentPeripherals.map(peripheral => {
-        return Object.keys(peripheral)
-            .filter(key => allowed.includes(key))
-            .reduce((obj, key) => {
-                obj[key] = peripheral[key];
-                return obj;
-            }, {});
-    }));
+    const allowed = ['id', 'uuid', 'address', 'addressType', 'connectable', 'rssi', 'advertisement'];
+    io.emit(
+      'peripherals',
+      currentPeripherals
+        .filter(peripheral =>
+          peripheral.advertisement
+          && peripheral.advertisement.serviceUuids
+          && peripheral.advertisement.serviceUuids.length)
+        .map(peripheral => {
+          return Object.keys(peripheral)
+              .filter(key => allowed.includes(key))
+              .reduce((obj, key) => {
+                  obj[key] = peripheral[key];
+                  return obj;
+              }, {});
+        })
+    );
 }
 
 /* app.use(function(req,res,next){
@@ -93,16 +103,15 @@ io.on('connection', function(socket){
     currentSocket = socket;
     console.log('a user connected');
 });
-  
+
 http.listen(portNumber, function(){
     console.log('listening on *:3000');
 });
 
-app.post('/peripherals', (req, res) => {
-    stopBleScanning();
-    startBleScanning();
-    emitPeripherals();
-    res.status(201).json({ message: 'peripheral emitted' });
+io.on('scan', () => {
+  stopBleScanning();
+  startBleScanning();
+  emitPeripherals();
 });
 
 app.post('/peripherals/:peripheralId', function ({ params }, res) {
@@ -123,7 +132,7 @@ app.post('/peripherals/:peripheralId', function ({ params }, res) {
 
 app.post('/peripherals/:peripheralId/services/:serviceId', function ({ params }, res) {
     // open the service
-    const peripheral = currentPeripherals.find(peripheral => peripheral.id === params.id);
+    const peripheral = currentPeripherals.find(peripheral => peripheral.id === params.peripheralId);
     if (!peripheral) {
         return res.status(400).json({ message: 'Peripheral does not exist!' });
     }
@@ -132,18 +141,20 @@ app.post('/peripherals/:peripheralId/services/:serviceId', function ({ params },
         if (error) {
             return res.status(400).json(error || { message: 'Peripheral cannot connect!' });
         }
-        connectedPeripherals.push({ peripheral, id: peripheral.id });
-        
+
         peripheral.discoverServices([params.serviceId], (error, [ service ]) => {
-            if (error) {
+            if (error || !service) {
                 return res.status(400).json(error || { message: 'Some sort of services listing issue!' });
             }
-            
+
             service.discoverCharacteristics([], (error, characteristics) => {
                 if (error) {
                     return res.status(400).json(error || { message: 'Some sort of characteristics listing issue!' });
                 }
                 currentCharacteristics = characteristics;
+                // create peripheral connection?
+                connectedPeripherals.push({ peripheral, id: peripheral.id });
+
                 res.status(201).send('characteristics found');
             });
         });
@@ -151,12 +162,22 @@ app.post('/peripherals/:peripheralId/services/:serviceId', function ({ params },
 });
 
 app.get('/peripherals/:peripheralId/services/:serviceId/characteristics', function (req, res) {
-    res.json(currentCharacteristics);
+  const allowed = ['uuid', '_peripheralId', '_serviceUuid', 'uuid', 'properties', 'name', 'type', 'descriptors'];
+  res.json(
+    currentCharacteristics.map(characteristic => {
+      return Object.keys(characteristic)
+        .filter(key => allowed.includes(key))
+        .reduce((obj, key) => {
+            obj[key] = characteristic[key];
+            return obj;
+        }, {})
+    })
+  );
 });
 
 app.post(
-    '/peripherals/:peripheralId/services/:serviceId/characteristics/:characteristicId', 
+    '/peripherals/:peripheralId/services/:serviceId/characteristics/:characteristicId',
     function (req, res) {
-        
+        // add characteristic notifier to peripheral connection
     }
 );
