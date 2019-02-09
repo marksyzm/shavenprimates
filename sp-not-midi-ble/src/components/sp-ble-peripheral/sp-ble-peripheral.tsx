@@ -8,6 +8,7 @@ import { getServicePropFromHexString, getCharacteristicPropFromHexString, format
 } */
 
 const API_HOST = 'http://localhost:3000/';
+const ID_LENGTH = 4;
 
 @Component({
   tag: 'sp-ble-peripheral',
@@ -24,6 +25,7 @@ export class SpBle {
   @State() peripherals = [];
   @State() connectedPeripherals = [];
   @State() showPeripherals = false;
+  @State() showConnectedPeripherals = false;
   @State() currentPeripheral;
   @State() scanning = false;
 
@@ -50,10 +52,23 @@ export class SpBle {
     this.socket.on('scanning', scanning => {
       this.scanning = scanning;
     });
+
+    this.socket.on('connectedPeripherals', connectedPeripherals => {
+      this.connectedPeripherals = connectedPeripherals;
+    });
   }
 
   scan() {
-    this.socket.emit('scan');
+    this.socket.emit('scan', true);
+  }
+
+  stopScanning() {
+    this.socket.emit('scan', false);
+  }
+
+  close() {
+    this.stopScanning();
+    this.showPeripherals = false;
   }
 
   componentDidUnload() {
@@ -74,34 +89,64 @@ export class SpBle {
     this.scan();
   }
 
+  getActionButtons() {
+    return (
+      <p class="d-flex align-items-center">
+        <span class="btn-group">
+          <button
+            onClick={this.onClickAddPeripheral}
+            class="btn btn-primary btn-large"
+            >Add Peripheral</button>
+          {this.getConnectedPeripheralsButton()}
+        </span>
+      </p>
+    )
+  }
+
+  getConnectedPeripheralsButton() {
+    const length = this.connectedPeripherals.length;
+    return (
+      <button
+        onClick={() => this.getConnectedPeripherals()}
+        class="btn btn-info btn-large"
+        disabled={!this.connectedPeripherals.length}>
+        {length} Connected Peripheral{length !== 1 && 's'}
+      </button>
+    );
+  }
+
   listPeripherals() {
     if (!this.showPeripherals) {
-      return (
-        <button
-          onClick={this.onClickAddPeripheral}
-          class="btn btn-primary btn-large"
-          >Add Peripheral</button>
-      );
+      return this.getActionButtons();
     }
 
     return (
-      <section class="row">
-        <p class="col-lg d-flex align-items-center">
+      <section>
+        <p class="d-flex align-items-center">
           <span class="btn-group">
+            {!this.scanning &&
             <button
               class="btn btn-success btn-large"
               onClick={() => this.scan()}
-              >Rescan</button>
+              >Rescan</button>}
+            {this.scanning &&
+            <button
+              class="btn btn-warning btn-large"
+              onClick={() => this.stopScanning()}
+              >Stop Scanning</button>
+            }
             <button
               class="btn btn-danger btn-large"
-              onClick={() => this.showPeripherals = false}
+              onClick={() => this.close()}
               >Close</button>
+            {this.getConnectedPeripheralsButton()}
           </span>
           {this.scanning &&
           <div class="spinner-border ml-auto" role="status" aria-hidden="true"></div>
           }
         </p>
-        <ul class="col-lg list-group">
+        <h1>Peripherals</h1>
+        <ul class="list-group">
           {this.peripherals && this.peripherals.map(peripheral => {
             const classList = ['list-group-item list-group-item-action flex-column align-items-start'];
             return (
@@ -117,7 +162,7 @@ export class SpBle {
   }
 
   getPeripheralName(peripheral): string {
-    return peripheral.advertisement && peripheral.advertisement.localName ? peripheral.advertisement.localName : peripheral.id;
+    return peripheral.advertisement && peripheral.advertisement.localName ? peripheral.advertisement.localName : peripheral.id.slice(0, ID_LENGTH);
   }
 
   listServices(peripheral) {
@@ -193,6 +238,9 @@ export class SpBle {
                         class="btn btn-info mr-2"
                         title={getCharacteristicPropFromHexString(formattedCharacteristicUuid, 'id')}>
                         {getCharacteristicPropFromHexString(formattedCharacteristicUuid, 'name')}
+                        {characteristic.properties.map(property =>
+                          <span class="badge badge-light ml-2">{property}</span>
+                        )}
                       </button>
                     );
                   }):
@@ -204,11 +252,40 @@ export class SpBle {
     )
   }
 
+  getConnectedPeripherals() {
+    this.showConnectedPeripherals = true;
+  }
+
+  listConnectedPeripherals() {
+    if (!this.showConnectedPeripherals) {
+      return;
+    }
+
+    return (
+      <ul class="list-group">
+        {this.connectedPeripherals && this.connectedPeripherals.map(connectedPeripheral => {
+          const classList = ['list-group-item list-group-item-action flex-column align-items-start'];
+          return (
+            <li class={classList.join(' ')}>
+              <h5>{this.getPeripheralName(connectedPeripheral.peripheral)}</h5>
+              {this.showPeripheralServices(connectedPeripheral.peripheral)}
+            </li>
+          );
+        })}
+      </ul>
+    );
+  }
+
+  closeConnectedPeripherals() {
+    this.showConnectedPeripherals = false;
+  }
+
   render() {
     return (
       <article>
         {this.listPeripherals()}
         {this.showPeripheralCharacteristics()}
+        {this.listConnectedPeripherals()}
       </article>
     );
   }

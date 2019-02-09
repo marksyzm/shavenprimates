@@ -56,8 +56,20 @@ noble.on('discover', function(peripheral) {
     emitPeripherals();
 });
 
+const simplifyPeripheral = peripheral => {
+  const allowed = [
+    'id', 'uuid', 'address', 'addressType', 'connectable', 'rssi', 'advertisement'
+  ];
+
+  return Object.keys(peripheral)
+    .filter(key => allowed.includes(key))
+    .reduce((obj, key) => {
+        obj[key] = peripheral[key];
+        return obj;
+    }, {});
+}
+
 const emitPeripherals = function () {
-    const allowed = ['id', 'uuid', 'address', 'addressType', 'connectable', 'rssi', 'advertisement'];
     io.emit(
       'peripherals',
       currentPeripherals
@@ -65,53 +77,43 @@ const emitPeripherals = function () {
           peripheral.advertisement
           && peripheral.advertisement.serviceUuids
           && peripheral.advertisement.serviceUuids.length)
-        .map(peripheral => {
-          return Object.keys(peripheral)
-              .filter(key => allowed.includes(key))
-              .reduce((obj, key) => {
-                  obj[key] = peripheral[key];
-                  return obj;
-              }, {});
-        })
+        .map(simplifyPeripheral)
     );
 }
 
-/* app.use(function(req,res,next){
-    req.io = io;
-    next();
-}); */
+const emitConnectedPeripherals = function () {
+  io.emit(
+    'connectedPeripherals',
+    connectedPeripherals
+      .map(connectedPeripheral => {
+        const peripheral = simplifyPeripheral(connectedPeripheral.peripheral);
+        return {
+          peripheralId: peripheral.id,
+          peripheral,
+        };
+      })
+  );
+};
 
 app.get('/', function(req, res){
     res.sendFile(__dirname + '/index.html');
 });
 
-/* app.post('/scan/start', function () {
-    if (currentState !== POWERED_ON)
-    currentPeripherals = [];
-    noble.startScanning();
-    scanning = true;
-    setTimeout(stopBleScanning, req.body.duration || 15000);
-    res.status(201).send('scanning');
-});
-
-app.post('/scan/stop', function () {
-    stopBleScanning();
-    res.status(201).send('scanning stopped');
-}); */
-
 io.on('connection', function(socket){
     currentSocket = socket;
     console.log('a user connected');
+    socket.on('scan', scan => {
+      stopBleScanning();
+      if (scan) {
+        startBleScanning();
+        emitPeripherals();
+        emitConnectedPeripherals();
+      }
+    });
 });
 
-http.listen(portNumber, function(){
+http.listen(portNumber, function() {
     console.log('listening on *:3000');
-});
-
-io.on('scan', () => {
-  stopBleScanning();
-  startBleScanning();
-  emitPeripherals();
 });
 
 app.post('/peripherals/:peripheralId', function ({ params }, res) {
@@ -154,6 +156,7 @@ app.post('/peripherals/:peripheralId/services/:serviceId', function ({ params },
                 currentCharacteristics = characteristics;
                 // create peripheral connection?
                 connectedPeripherals.push({ peripheral, id: peripheral.id });
+                emitConnectedPeripherals();
 
                 res.status(201).send('characteristics found');
             });
