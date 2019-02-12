@@ -17,21 +17,18 @@ const ID_LENGTH = 4;
 export class SpBle {
   @Event() blePeripheralSelected: EventEmitter;
   @Prop() socket: SocketIOClient.Socket;
-  @State() server: any;
-  @State() optionalServices = [];
   @State() loadingCharacteristics = false;
   @State() characteristics = [];
-  @State() services = [];
   @State() peripherals = [];
   @State() connectedPeripherals = [];
   @State() showPeripherals = false;
   @State() showConnectedPeripherals = false;
   @State() currentPeripheral;
+  @State() currentServiceUuid: string;
   @State() scanning = false;
 
   constructor() {
     this.onClickAddPeripheral = this.onClickAddPeripheral.bind(this);
-    this.onInputSetService = this.onInputSetService.bind(this);
   }
 
   static getSupportedProperties(characteristic) {
@@ -74,13 +71,6 @@ export class SpBle {
   componentDidUnload() {
     this.socket.off('peripherals');
     this.socket.off('scanning');
-  }
-
-  onInputSetService(ev) {
-    this.optionalServices = ev.target.value
-      .split(/, ?/).map(s => s.startsWith('0x') ? parseInt(s) : s)
-      .filter(s => s && window['BluetoothUUID'].getService);
-    console.log(this.optionalServices);
   }
 
   onClickAddPeripheral() {
@@ -165,10 +155,6 @@ export class SpBle {
     return peripheral.advertisement && peripheral.advertisement.localName ? peripheral.advertisement.localName : peripheral.id.slice(0, ID_LENGTH);
   }
 
-  listServices(peripheral) {
-    this.currentPeripheral = peripheral;
-  }
-
   showPeripheralServices(peripheral) {
     const { advertisement } = peripheral;
     return (
@@ -178,7 +164,7 @@ export class SpBle {
               const formattedServiceUuid = formatHexShortCode(serviceUuid);
               return (
                 <button
-                  class="btn btn-info mr-2"
+                  class={`btn mr-2 ${this.currentServiceUuid === serviceUuid ? 'btn-success':  'btn-secondary'}`}
                   onClick={() => this.getCharacteristics(peripheral, serviceUuid)}
                   title={getServicePropFromHexString(formattedServiceUuid, 'id')}>
                   {getServicePropFromHexString(formattedServiceUuid, 'name')}
@@ -193,6 +179,7 @@ export class SpBle {
   async getCharacteristics(peripheral, serviceUuid) {
     this.showPeripherals = false;
     this.currentPeripheral = peripheral;
+    this.currentServiceUuid = serviceUuid;
     this.loadingCharacteristics = true;
     this.characteristics = [];
     try {
@@ -223,29 +210,18 @@ export class SpBle {
           <small>characteristics</small>
         </h1>
         <section>
+          <h2>Services</h2>
+          {this.showPeripheralServices(peripheral)}
+        </section>
+        <section>
+          <h2>Characteristics</h2>
           {
             this.loadingCharacteristics ?
               <div class="d-flex align-items-center">
                 <strong>Loading Characteristics...</strong>
                 <div class="spinner-border ml-auto" role="status" aria-hidden="true"></div>
               </div> :
-              (
-                characteristics.length ?
-                  characteristics.map(characteristic => {
-                    const formattedCharacteristicUuid = formatHexShortCode(characteristic.uuid);
-                    return (
-                      <button
-                        class="btn btn-info mr-2"
-                        title={getCharacteristicPropFromHexString(formattedCharacteristicUuid, 'id')}>
-                        {getCharacteristicPropFromHexString(formattedCharacteristicUuid, 'name')}
-                        {characteristic.properties.map(property =>
-                          <span class="badge badge-light ml-2">{property}</span>
-                        )}
-                      </button>
-                    );
-                  }):
-                  <p>No Characteristics Found!</p>
-              )
+              this.getCharacteristicButtons(characteristics)
           }
         </section>
       </section>
@@ -254,6 +230,25 @@ export class SpBle {
 
   getConnectedPeripherals() {
     this.showConnectedPeripherals = true;
+  }
+
+  getCharacteristicButtons(characteristics) {
+    if (!characteristics || !characteristics.length) {
+      return <p>No Characteristics Found!</p>;
+    }
+    return characteristics.map(characteristic => {
+      const formattedCharacteristicUuid = formatHexShortCode(characteristic.uuid);
+      return (
+        <button
+          class="btn btn-info mr-2"
+          title={getCharacteristicPropFromHexString(formattedCharacteristicUuid, 'id')}>
+          {getCharacteristicPropFromHexString(formattedCharacteristicUuid, 'name')}
+          {characteristic.properties.map(property =>
+            <span class="badge badge-light ml-2">{property}</span>
+          )}
+        </button>
+      );
+    })
   }
 
   listConnectedPeripherals() {
