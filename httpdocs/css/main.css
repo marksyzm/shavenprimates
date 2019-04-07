@@ -109,7 +109,7 @@ h1 sup {
 
 .label {
   border-radius: 1vw;
-  padding: 2vw;
+  padding: 1vw;
   background: white;
   color: #151515;
   -webkit-box-shadow: 0px 0px 5px 3px rgba(0,0,0,0.75);
@@ -124,6 +124,7 @@ h1 sup {
   transform: translate(-50%, -50%);
   z-index: 1;
   letter-spacing: 1vw;
+  pointer-events: none;
 }
 
 .fluid {
