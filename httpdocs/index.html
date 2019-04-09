@@ -39,10 +39,10 @@
                 <figure class="media" id="video-player" onclick="replaceWith(this, 'img, .label', 'iframe')">
                     <h4 class="label vcr">Click to play</h4>
                     <div class="fluid fluid-youtube">
-                        <img src="./img/video-screenshot.png" alt="Shaving Primate">
+                        <img src="./img/video-screenshot.png" alt="Shaving Primate Ryan">
                         <iframe
-                            style="display: none"
-                            src="https://www.youtube-nocookie.com/embed/vJe1_NHpGI0?autoplay=1&theme=dark&color=white&autohide=2&modestbranding=1&showinfo=0&rel=0&controls=0&iv_load_policy=3"
+                            style="opacity: 0"
+                            src="https://www.youtube.com/embed/vJe1_NHpGI0?autoplay=1&theme=dark&color=white&autohide=2&modestbranding=1&showinfo=0&rel=0&controls=0&iv_load_policy=3"
                             frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
                             allowfullscreen
                             ></iframe>
@@ -52,25 +52,6 @@
                         </video> -->
                     </div>
                 </figure>
-                <script>
-                    function replaceWith (el, removeSelector, videoSelector) {
-                        var removeItems = el.querySelectorAll(removeSelector);
-                        var video = el.querySelector(videoSelector);
-                        removeItems.forEach(function (item) {
-                            item.parentNode.removeChild(item);
-                        });
-                        if (video) {
-                            video.style.display = 'block';
-                        }
-                        if (video && videoSelector === 'video') {
-                            if (video.paused) {
-                                video.play();
-                            } else {
-                                video.pause();
-                            }
-                        }
-                    }
-                </script>
             </div>
             <h2>Evolution EP</h2>
             <h3>coming soon</h3>
