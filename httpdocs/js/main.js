@@ -5,13 +5,14 @@ function replaceWith (el, removeSelector, videoSelector) {
       item.parentNode.removeChild(item);
   });
   if (video) {
-      video.style.opacity = 1;
+    video.style.visibility = 'visible';
+    video.style.pointerEvents = 'auto';
   }
   if (video && videoSelector === 'video') {
-      if (video.paused) {
-          video.play();
-      } else {
-          video.pause();
-      }
+    if (video.paused) {
+        video.play();
+    } else {
+        video.pause();
+    }
   }
 }
