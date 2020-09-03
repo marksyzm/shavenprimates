@@ -37,7 +37,7 @@
     "@types/socket.io-client": "^1.4.32",
     "jest": "23.6.0",
     "jest-cli": "23.6.0",
-    "puppeteer": "1.8.0",
+    "puppeteer": "1.13.0",
     "rollup-plugin-node-builtins": "^2.1.2",
     "rollup-plugin-node-globals": "^1.4.0",
     "socket.io-client": "^2.2.0",
