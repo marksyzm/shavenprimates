@@ -27,7 +27,7 @@
     "noble": "^1.9.1",
     "noble-mac": "git://github.com/Timeular/noble-mac.git",
     "pm2": "^3.2.9",
-    "socket.io": "^2.2.0",
+    "socket.io": "^2.4.0",
     "xpc-connection": "sandeepmistry/node-xpc-connection#pull/26/head"
   },
   "devDependencies": {
