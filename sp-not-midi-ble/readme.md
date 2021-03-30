@@ -1,3 +1,0 @@
-# SP-NOT-MIDI-BLE
-
-Oh yes...
